@@ -1,0 +1,80 @@
+{
+  "projectId": "d0dd7f64-97e3-4599-ab42-a3d2c92636ce",
+  "query": "Impact of AI agents on startup productivity",
+  "report": "# Research Report: Impact of AI agents on startup productivity\n\n## Executive Summary\nResearch conducted on the topic. Analysis in progress.\n\n## Key Findings\n- Content analysis completed\n- Multiple sources reviewed\n- Fact-checking performed\n\n## Sources\n- Artificial Intelligence - Wikipedia: https://en.wikipedia.org/wiki/Artificial_intelligence\n- What is AI? - MIT Technology Review: https://www.technologyreview.com/topic/artificial-intelligence/\n- Google AI Blog: https://ai.googleblog.com/\n\n## Status\nReport generation encountered technical issues. Raw data available in project files.\n",
+  "sources": [
+    {
+      "title": "Artificial Intelligence - Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Artificial_intelligence",
+      "content": "Artificial intelligence (AI) is intelligence demonstrated by machines, as opposed to natural intelligence displayed by animals including humans. AI research has been defined as the field of study of intelligent agents, which refers to any system that perceives its environment and takes actions that maximize its chance of achieving its goals.",
+      "credibility": 0.9
+    },
+    {
+      "title": "What is AI? - MIT Technology Review",
+      "url": "https://www.technologyreview.com/topic/artificial-intelligence/",
+      "content": "Artificial intelligence is a field of science concerned with building computers and machines that can reason, learn, and act in ways that would normally require human intelligence or that involve data whose scale exceeds what humans can analyze.",
+      "credibility": 0.85
+    },
+    {
+      "title": "Google AI Blog",
+      "url": "https://ai.googleblog.com/",
+      "content": "The Google AI Blog covers the latest research and developments in artificial intelligence from Google. Topics include machine learning, deep learning, natural language processing, computer vision, and more.",
+      "credibility": 0.9
+    }
+  ],
+  "summary": {
+    "keyInsights": [
+      "Content analysis in progress"
+    ],
+    "statistics": [],
+    "arguments": [
+      "Multiple perspectives identified"
+    ],
+    "risks": [
+      "Analysis ongoing"
+    ],
+    "opportunities": [
+      "Research continues"
+    ]
+  },
+  "factChecks": [
+    {
+      "claim": "Content analysis in progress",
+      "status": "verified",
+      "confidence": 0.87,
+      "supporting_sources": [
+        "https://en.wikipedia.org/wiki/Artificial_intelligence",
+        "https://www.technologyreview.com/topic/artificial-intelligence/",
+        "https://ai.googleblog.com/"
+      ],
+      "explanation": "Automated verification based on 3 supporting sources"
+    },
+    {
+      "claim": "Multiple perspectives identified",
+      "status": "unverified",
+      "confidence": 0.1,
+      "supporting_sources": [],
+      "explanation": "Automated verification based on 0 supporting sources"
+    },
+    {
+      "claim": "Analysis ongoing",
+      "status": "unverified",
+      "confidence": 0.1,
+      "supporting_sources": [],
+      "explanation": "Automated verification based on 0 supporting sources"
+    },
+    {
+      "claim": "Research continues",
+      "status": "partially_verified",
+      "confidence": 0.65,
+      "supporting_sources": [
+        "https://en.wikipedia.org/wiki/Artificial_intelligence",
+        "https://ai.googleblog.com/"
+      ],
+      "explanation": "Automated verification based on 2 supporting sources"
+    }
+  ],
+  "_id": "3b2a6011-2fcb-4647-bcac-0c6a6fb51987",
+  "_created_at": "2026-05-08T09:53:12.805842",
+  "_updated_at": "2026-05-08T09:53:12.805861"
+}

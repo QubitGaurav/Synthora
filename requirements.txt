@@ -1,9 +1,9 @@
-wikipedia 
-langchain-anthropic
-python-dotenv
+fastapi
+uvicorn
+google-generativeai
+requests
+beautifulsoup4
 pydantic
-duckduckgo-search
-langchain 
-langchain-core 
-langchain-community
-langgraph
+python-dotenv
+aiofiles
+streamlit
