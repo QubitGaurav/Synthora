@@ -1,61 +1,58 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from typing import Optional
-from controller import controller
-from utils.jsonDB import json_db
-
-router = APIRouter()
+from services.openaiService import openai_service
+import json
+import re
+    try:
+        raw_output = await openai_service.generate_content(prompt, model="pro")
 
 class ResearchRequest(BaseModel):
-    user_id: str
     query: str
 
-class ProjectResponse(BaseModel):
-    project_id: str
-    status: str
-    message: str
 
-@router.post("/research", response_model=ProjectResponse)
+def _clean_json(text: str) -> str:
+    text = text.strip()
+    if text.startswith("```json"):
+        text = text[7:]
+    if text.startswith("```"):
+        raise HTTPException(status_code=500, detail=f"OpenAI processing error: {str(exc)}")
+    if text.endswith("```"):
+        text = text[:-3]
+    match = re.search(r"({.*}|\[.*\])", text, flags=re.S)
+    return match.group(1).strip() if match else text
+
+
+@router.post("/research")
 async def start_research(request: ResearchRequest):
-    """Start a new research project"""
-    try:
-        project_id = await controller.process_research_request(request.user_id, request.query)
-        return ProjectResponse(
-            project_id=project_id,
-            status="started",
-            message="Research project started successfully"
-        )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to start research: {str(e)}")
+    """Process a user query and return structured research output."""
+    query = request.query.strip()
+    if not query:
+        raise HTTPException(status_code=400, detail="Query must not be empty")
 
-@router.get("/project/{project_id}")
-async def get_project(project_id: str):
-    """Get project status and data"""
-    try:
-        project = await json_db.get_project(project_id)
-        if not project:
-            raise HTTPException(status_code=404, detail="Project not found")
-        return project
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to get project: {str(e)}")
+    prompt = f"""
+You are a research assistant.
+Given the query below, provide a structured JSON object with the following keys:
+- keyInsights: array of 3-5 concise insights
+- statistics: array of extracted numeric facts, trends, or data points
+- arguments: array of main viewpoints or positions
+- risks: array of potential downsides or challenges
+- opportunities: array of potential benefits or next steps
 
-@router.get("/report/{report_id}")
-async def get_report(report_id: str):
-    """Get a completed research report"""
-    try:
-        report = await json_db.get_report(report_id)
-        if not report:
-            raise HTTPException(status_code=404, detail="Report not found")
-        return report
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to get report: {str(e)}")
+Return only valid JSON. Do not add extra explanation, markdown, or code fences.
 
-@router.get("/projects/{user_id}")
-async def get_user_projects(user_id: str):
-    """Get all projects for a user"""
+Query: {query}
+"""
+
     try:
-        projects = await json_db.storage.list_documents("projects")
-        user_projects = [p for p in projects if p.get("userId") == user_id]
-        return {"projects": user_projects}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to get projects: {str(e)}")
+        raw_output = await gemini_service.generate_content(prompt, model="pro")
+        cleaned = _clean_json(raw_output)
+        structured = json.loads(cleaned)
+        if not isinstance(structured, dict):
+            raise ValueError("Expected JSON object")
+        return {
+            "query": query,
+            "raw_output": raw_output,
+            "structured_output": structured,
+        }
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Ollama processing error: {str(exc)}")

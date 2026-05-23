@@ -1,10 +1,10 @@
 import json
 from typing import Dict, Any, List
-from services.geminiService import gemini_service
+from services.openaiService import openai_service
 
 class ReportAgent:
     def __init__(self):
-        self.gemini = gemini_service
+        self.openai = openai_service
 
     async def generate_report(self, query: str, sources: List[Dict[str, Any]],
                             summary: Dict[str, Any], fact_checks: List[Dict[str, Any]]) -> str:
@@ -58,7 +58,7 @@ class ReportAgent:
         """
 
         try:
-            report_markdown = await self.gemini.generate_content(prompt, model="pro")
+            report_markdown = await self.openai.generate_content(prompt, model="pro")
             return report_markdown
         except Exception as e:
             print(f"Error generating report: {e}")

@@ -1,13 +1,13 @@
 # Multi-Agent Research Assistant
 
-A Python-based research assistant combining FastAPI, Gemini, and local JSON storage for rapid MVP iteration.
+A Python-based research assistant combining FastAPI, Ollama local modeling, and local JSON storage for rapid MVP iteration.
 
 ## Overview
 
 This project implements a research workflow with:
 - a FastAPI backend for orchestration and data access
 - a multi-agent pipeline for search, summarization, fact-checking, and report generation
-- Gemini AI for content generation
+- Local Ollama model for content generation
 - JSON file storage for projects, reports, users, and caches
 - a Streamlit frontend for easy local exploration
 
@@ -56,7 +56,7 @@ AI_Research_Agent/
 │   ├── factCheckAgent.py   # Claim verification
 │   └── reportAgent.py      # Report generation
 ├── services/
-│   ├── geminiService.py    # Gemini API integration
+│   ├── geminiService.py    # Local Ollama integration
 │   └── storageService.py   # JSON persistence layer
 ├── routes/
 │   └── researchRoutes.py   # API route definitions
@@ -73,7 +73,7 @@ AI_Research_Agent/
 
 - `fastapi`
 - `uvicorn`
-- `google-generativeai`
+- `httpx`
 - `requests`
 - `beautifulsoup4`
 - `pydantic`
@@ -85,7 +85,7 @@ AI_Research_Agent/
 
 ### Prerequisites
 - Python 3.10+
-- Google Gemini API key
+- Local Ollama server installed with a model available
 
 ### Setup
 
@@ -96,10 +96,12 @@ AI_Research_Agent/
 python3 -m pip install -r requirements.txt
 ```
 
-3. Create a `.env` file in the project root:
+3. Create a `.env` file in the project root or update the existing file:
 
 ```env
-GEMINI_API_KEY=your_gemini_api_key_here
+OLLAMA_URL=http://127.0.0.1:11434
+OLLAMA_MODEL_PRO=qwen2.5:3b
+OLLAMA_MODEL_FLASH=qwen2.5:3b
 ```
 
 4. Create the data folders if they do not already exist:
@@ -194,7 +196,7 @@ Each document includes metadata like `_id`, `_created_at`, and `_updated_at`.
 ## Notes
 
 - The search agent currently uses static example content and web scraping for MVP behavior.
-- The Gemini service is configured via `GEMINI_API_KEY` and uses `gemini-2.5-pro` and `gemini-1.5-flash` models.
+- The local Ollama service is configured via `OLLAMA_URL` and optional `OLLAMA_MODEL_PRO` / `OLLAMA_MODEL_FLASH` environment variables.
 - Local JSON storage is intentionally simple for fast iteration and debugging.
 
 ## Extending the system
@@ -227,7 +229,7 @@ See `requirements.txt` for the complete list of dependencies and their versions.
 
 ## Notes
 
-- Ensure your Anthropic API key has sufficient quota
+- Ensure your local Ollama server is running and your chosen model is installed
 - Internet connection required for web search and Wikipedia queries
 - Research outputs accumulate in `research_output.txt`; consider archiving or clearing periodically
 

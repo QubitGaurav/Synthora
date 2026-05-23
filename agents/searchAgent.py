@@ -2,11 +2,11 @@ import requests
 from bs4 import BeautifulSoup
 import json
 from typing import List, Dict, Any
-from services.geminiService import gemini_service
+from services.openaiService import openai_service
 
 class SearchAgent:
     def __init__(self):
-        self.gemini = gemini_service
+        self.openai = openai_service
 
     async def search_web(self, query: str, max_results: int = 5) -> List[Dict[str, Any]]:
         """Search the web and extract content from relevant sources"""
@@ -77,7 +77,7 @@ class SearchAgent:
             return {}
 
     async def rank_sources(self, sources: List[Dict[str, Any]], query: str) -> List[Dict[str, Any]]:
-        """Rank sources based on relevance to query using Gemini"""
+        """Rank sources based on relevance to query using the local Ollama model"""
         if not sources:
             return sources
 

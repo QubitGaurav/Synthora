@@ -1,10 +1,10 @@
 import json
 from typing import List, Dict, Any
-from services.geminiService import gemini_service
+from services.openaiService import openai_service
 
 class SummarizationAgent:
     def __init__(self):
-        self.gemini = gemini_service
+        self.openai = openai_service
 
     async def summarize_content(self, sources: List[Dict[str, Any]], query: str) -> Dict[str, Any]:
         """Summarize the collected content into key insights, statistics, arguments, risks, and opportunities"""
@@ -33,7 +33,7 @@ class SummarizationAgent:
         """
 
         try:
-            response = await self.gemini.generate_content(prompt, model="pro")
+            response = await self.openai.generate_content(prompt, model="pro")
             # Clean the response to extract JSON
             response_text = response.strip()
             if response_text.startswith("```json"):

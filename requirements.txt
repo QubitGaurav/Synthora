@@ -1,9 +1,9 @@
 fastapi
 uvicorn
-google-generativeai
 requests
 beautifulsoup4
 pydantic
 python-dotenv
 aiofiles
 streamlit
+openai

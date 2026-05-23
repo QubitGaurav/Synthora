@@ -1,10 +1,10 @@
 import json
 from typing import List, Dict, Any
-from services.geminiService import gemini_service
+from services.openaiService import openai_service
 
 class FactCheckAgent:
     def __init__(self):
-        self.gemini = gemini_service
+        self.openai = openai_service
 
     async def fact_check_claims(self, sources: List[Dict[str, Any]], summary: Dict[str, Any]) -> List[Dict[str, Any]]:
         """Fact-check key claims from the summary against sources"""
@@ -63,7 +63,7 @@ class FactCheckAgent:
             confidence = 0.1   # Very low confidence
             status = "unverified"
 
-        # Use Gemini for more sophisticated verification
+        # Use the OpenAI model for more sophisticated verification
         prompt = f"""
         Verify the following claim against the provided sources:
 
@@ -82,7 +82,7 @@ class FactCheckAgent:
         """
 
         try:
-            response = await self.gemini.generate_content(prompt, model="flash")
+            response = await self.openai.generate_content(prompt, model="flash")
             verification_data = json.loads(response.strip())
             verification_data["sources"] = supporting_sources
             return verification_data
