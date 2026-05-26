@@ -6,11 +6,8 @@ An AI-powered research agent built using **FastAPI**, **Streamlit**, and **Ollam
 
 ## 🖼️ Output Preview
 
-> Add your Streamlit app screenshots here.
+<img width="1919" height="957" alt="Screenshot 2026-05-26 180139" src="https://github.com/user-attachments/assets/6ad085ec-a6fe-48d7-8016-2c38284786a7" />
 
-```text
-Paste screenshot / output image here
-```
 
 ---
 
@@ -18,9 +15,12 @@ Paste screenshot / output image here
 
 > Add one sample generated research output here.
 
-```text
-Paste generated output here
-```
+<img width="1906" height="964" alt="Screenshot 2026-05-26 180247" src="https://github.com/user-attachments/assets/c5fab23c-3e0a-4c26-88d2-b757fcec661b" />
+<img width="1910" height="967" alt="Screenshot 2026-05-26 180237" src="https://github.com/user-attachments/assets/8833dd5a-37bb-4768-af5d-876d9a0a6d84" />
+<img width="1915" height="964" alt="Screenshot 2026-05-26 180223" src="https://github.com/user-attachments/assets/6646c098-a107-444e-a010-1d45947a34a8" />
+<img width="1918" height="972" alt="Screenshot 2026-05-26 180210" src="https://github.com/user-attachments/assets/f0bb54b3-3b1d-4dba-9326-8d2c61684e08" />
+<img width="1916" height="964" alt="Screenshot 2026-05-26 180153" src="https://github.com/user-attachments/assets/f30d33c4-3967-4539-8f21-03ea55464d5a" />
+
 
 ---
 
