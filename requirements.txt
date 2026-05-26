@@ -1,5 +1,7 @@
 fastapi
 uvicorn
-streamlit
 requests
+pydantic
+openai
 python-dotenv
+beautifulsoup4
