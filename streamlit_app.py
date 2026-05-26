@@ -4,7 +4,7 @@ import streamlit as st
 API_BASE = "http://127.0.0.1:8000/api"
 
 st.set_page_config(
-    page_title="ResearchForge",
+    page_title="Synthora Research Agent",
     page_icon="🧠",
     layout="wide"
 )
