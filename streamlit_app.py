@@ -1,7 +1,9 @@
 import requests
 import streamlit as st
 
-API_BASE = "http://127.0.0.1:8000/api"
+# ==============================
+# STREAMLIT CONFIG
+# ==============================
 
 st.set_page_config(
     page_title="Synthora Research Agent",
@@ -9,35 +11,107 @@ st.set_page_config(
     layout="wide"
 )
 
-st.title("🧠 ResearchForge")
-st.caption("AI Research Agent using Ollama Cloud API + FastAPI + Streamlit")
+st.title("🧠 Synthora Research Agent")
+st.caption("AI Research Agent using FastAPI + Streamlit")
 
 
-def render_card(title, items, icon, bg_color, border_color):
+# ==============================
+# SECRETS
+# ==============================
 
-    st.markdown(f"## {icon} {title}")
+try:
+    API_BASE = st.secrets["API_BASE"]
+
+except Exception:
+
+    st.error("""
+    API_BASE not found.
+
+    Add this inside Streamlit Secrets:
+
+    API_BASE = "https://your-backend-url/api"
+    """)
+
+    st.stop()
+
+
+# ==============================
+# BACKEND FUNCTIONS
+# ==============================
+
+def check_backend():
+
+    try:
+
+        response = requests.get(
+            f"{API_BASE}/health",
+            timeout=15
+        )
+
+        return response
+
+    except requests.RequestException as exc:
+
+        return exc
+
+
+def generate_research(query, user_id):
+
+    response = requests.post(
+        f"{API_BASE}/research",
+        json={
+            "query": query.strip(),
+            "user_id": user_id.strip()
+        },
+        timeout=300
+    )
+
+    return response
+
+
+def get_history():
+
+    try:
+
+        response = requests.get(
+            f"{API_BASE}/research/history",
+            timeout=30
+        )
+
+        if response.ok:
+            return response.json()
+
+        return []
+
+    except requests.RequestException:
+
+        return []
+
+
+# ==============================
+# UI HELPERS
+# ==============================
+
+def render_card(title, items):
+
+    st.subheader(title)
 
     if not items:
+
         st.warning(f"No {title.lower()} found.")
         return
 
     for item in items:
+
         st.markdown(
             f"""
             <div style="
-                background-color:{bg_color};
                 padding:16px;
-                border-radius:14px;
-                margin-bottom:12px;
-                border-left:6px solid {border_color};
-                box-shadow:0 2px 8px rgba(0,0,0,0.08);
+                border-radius:12px;
+                margin-bottom:10px;
+                border:1px solid #ddd;
             ">
-                <div style="
-                    font-size:16px;
-                    line-height:1.7;
-                ">
-                    {item}
-                </div>
+                {item}
             </div>
             """,
             unsafe_allow_html=True
@@ -46,7 +120,7 @@ def render_card(title, items, icon, bg_color, border_color):
 
 def render_report(data):
 
-    st.markdown("## 📊 Research Report")
+    st.header("📊 Research Report")
 
     col1, col2, col3 = st.columns(3)
 
@@ -70,75 +144,54 @@ def render_report(data):
 
     st.divider()
 
-    st.markdown("### 🔍 Query")
+    st.subheader("🔍 Query")
     st.info(data.get("query", "No query found"))
 
     summary = data.get("summary", {})
 
-    st.divider()
-
     render_card(
-        "Key Insights",
-        summary.get("keyInsights", []),
-        "⭐",
-        "#eef6ff",
-        "#1f77b4"
+        "⭐ Key Insights",
+        summary.get("keyInsights", [])
     )
 
     render_card(
-        "Statistics",
-        summary.get("statistics", []),
-        "📈",
-        "#f2fff2",
-        "#2ca02c"
+        "📈 Statistics",
+        summary.get("statistics", [])
     )
 
-    col_left, col_right = st.columns(2)
-
-    with col_left:
-        render_card(
-            "Risks",
-            summary.get("risks", []),
-            "⚠️",
-            "#fff4f4",
-            "#d62728"
-        )
-
-    with col_right:
-        render_card(
-            "Opportunities",
-            summary.get("opportunities", []),
-            "🚀",
-            "#f4fff4",
-            "#2ca02c"
-        )
+    render_card(
+        "⚠️ Risks",
+        summary.get("risks", [])
+    )
 
     render_card(
-        "Arguments",
-        summary.get("arguments", []),
-        "🧩",
-        "#faf5ff",
-        "#9467bd"
+        "🚀 Opportunities",
+        summary.get("opportunities", [])
+    )
+
+    render_card(
+        "🧩 Arguments",
+        summary.get("arguments", [])
     )
 
 
 def render_sources(data):
 
-    st.markdown("## 🔗 Research Sources")
+    st.header("🔗 Sources")
 
     sources = data.get("sources", [])
 
     if not sources:
+
         st.warning("No sources found.")
         return
 
     for index, source in enumerate(sources, start=1):
 
-        title = source.get("title", "Untitled Source")
+        with st.expander(
+            f"{index}. {source.get('title', 'Untitled')}"
+        ):
 
-        with st.expander(f"{index}. {title}"):
-
-            st.markdown("### 📝 Snippet")
             st.write(
                 source.get(
                     "snippet",
@@ -146,111 +199,57 @@ def render_sources(data):
                 )
             )
 
-            if source.get("content"):
-                st.markdown("### 📄 Content")
-                st.write(source.get("content"))
+            if source.get("url"):
 
-            col1, col2 = st.columns(2)
-
-            with col1:
-                st.metric(
-                    "Credibility",
-                    source.get("credibility", "N/A")
+                st.markdown(
+                    f"[🌐 Open Source]({source.get('url')})"
                 )
 
-            with col2:
-                st.metric(
-                    "Relevance",
-                    source.get("relevance_score", "N/A")
-                )
 
-            url = source.get("url", "")
-
-            if url:
-                st.markdown(f"[🌐 Open Source]({url})")
-
-
-def check_backend(api_base):
-
-    try:
-        response = requests.get(
-            f"{api_base}/health",
-            timeout=15
-        )
-
-        return response
-
-    except requests.RequestException as exc:
-        return exc
-
-
-def generate_research(api_base, query, user_id):
-
-    response = requests.post(
-        f"{api_base}/research",
-        json={
-            "query": query.strip(),
-            "user_id": user_id.strip()
-        },
-        timeout=300
-    )
-
-    return response
-
-
-def get_history(api_base):
-
-    try:
-        response = requests.get(
-            f"{api_base}/research/history",
-            timeout=30
-        )
-
-        if response.ok:
-            return response.json()
-
-        return []
-
-    except requests.RequestException:
-        return []
-
+# ==============================
+# SIDEBAR
+# ==============================
 
 with st.sidebar:
 
     st.header("⚙️ Backend")
 
-    api_base = st.text_input(
-        "API Base URL",
-        value=API_BASE
-    )
+    st.success("Backend Configured")
 
     if st.button("🔍 Check Backend Health"):
 
-        result = check_backend(api_base)
+        result = check_backend()
 
         if isinstance(result, requests.Response):
 
             if result.ok:
+
                 st.success("Backend Connected")
+
                 st.json(result.json())
 
             else:
+
                 st.error(result.text)
 
         else:
-            st.error(f"Backend not reachable: {result}")
 
-    st.divider()
+            st.error(
+                f"Backend not reachable:\n{result}"
+            )
 
-    st.markdown("### ☁️ Model")
 
-    st.success("Using Ollama Cloud API")
-
+# ==============================
+# MAIN INPUTS
+# ==============================
 
 query = st.text_area(
     "Research Topic / Question",
     height=180,
-    placeholder="Example: How AI affects the software market?"
+    placeholder="""
+Example:
+How AI will affect software jobs in next 5 years?
+"""
 )
 
 user_id = st.text_input(
@@ -258,6 +257,10 @@ user_id = st.text_input(
     value="local_user"
 )
 
+
+# ==============================
+# GENERATE REPORT
+# ==============================
 
 if st.button(
     "🚀 Generate Research Report",
@@ -268,19 +271,18 @@ if st.button(
     if not query.strip():
 
         st.error(
-            "Enter a research query first."
+            "Please enter a research query."
         )
 
     else:
 
         with st.spinner(
-            "Researching using Ollama Cloud API..."
+            "Researching..."
         ):
 
             try:
 
                 response = generate_research(
-                    api_base,
                     query,
                     user_id
                 )
@@ -289,8 +291,9 @@ if st.button(
 
                     st.error(
                         f"""
-                        Backend error
-                        {response.status_code}:
+                        Backend Error:
+                        {response.status_code}
+
                         {response.text}
                         """
                     )
@@ -304,24 +307,25 @@ if st.button(
                     ] = data
 
                     st.success(
-                        f"""
-                        Research completed:
-                        {data.get('_id', 'No ID')}
-                        """
+                        "Research Completed Successfully"
                     )
 
             except requests.RequestException as exc:
 
                 st.error(
-                    f"Unable to reach backend: {exc}"
+                    f"Unable to connect backend:\n{exc}"
                 )
 
+
+# ==============================
+# SHOW REPORT
+# ==============================
 
 if "latest_report" in st.session_state:
 
     data = st.session_state["latest_report"]
 
-    tab_report, tab_sources, tab_raw = st.tabs(
+    tab1, tab2, tab3 = st.tabs(
         [
             "📊 Report",
             "🔗 Sources",
@@ -329,57 +333,36 @@ if "latest_report" in st.session_state:
         ]
     )
 
-    with tab_report:
+    with tab1:
         render_report(data)
 
-    with tab_sources:
+    with tab2:
         render_sources(data)
 
-    with tab_raw:
+    with tab3:
         st.json(data)
 
 
+# ==============================
+# HISTORY
+# ==============================
+
 st.divider()
 
-st.markdown("## 📚 Research History")
+st.header("📚 Research History")
 
-history = get_history(api_base)
+history = get_history()
 
 if not history:
 
-    st.info("No research history found.")
+    st.info("No history found.")
 
 else:
 
     for index, item in enumerate(history, start=1):
 
-        title = item.get(
-            "query",
-            "Untitled Research"
-        )
-
-        status = item.get(
-            "status",
-            "N/A"
-        )
-
         with st.expander(
-            f"{index}. {title} | {status}"
+            f"{index}. {item.get('query', 'Untitled')}"
         ):
 
-            tab1, tab2, tab3 = st.tabs(
-                [
-                    "📊 Report",
-                    "🔗 Sources",
-                    "🧾 Raw JSON"
-                ]
-            )
-
-            with tab1:
-                render_report(item)
-
-            with tab2:
-                render_sources(item)
-
-            with tab3:
-                st.json(item)
+            st.json(item)
