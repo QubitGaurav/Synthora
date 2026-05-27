@@ -31,12 +31,12 @@ st.set_page_config(
 # ─────────────────────────────────────────────────────────────────────────────
 
 try:
-    API_BASE = st.secrets["API_BASE"].rstrip("/")
+    API_BASE_URL = st.secrets["API_BASE_URL"].rstrip("/")
 except Exception:
     st.error(
-        "**API_BASE not configured.**\n\n"
+        "**API_BASE_URL not configured.**\n\n"
         "Add this to your Streamlit secrets:\n\n"
-        "```toml\nAPI_BASE = \"http://127.0.0.1:8000\"\n```"
+        "```toml\nAPI_BASE_URL = \"http://127.0.0.1:8000\"\n```"
     )
     st.stop()
 
@@ -46,11 +46,11 @@ except Exception:
 # ─────────────────────────────────────────────────────────────────────────────
 
 def api_get(path: str, timeout: int = 30) -> requests.Response:
-    return requests.get(f"{API_BASE}{path}", timeout=timeout)
+    return requests.get(f"{API_BASE_URL}{path}", timeout=timeout)
 
 
 def api_post(path: str, payload: dict, timeout: int = 300) -> requests.Response:
-    return requests.post(f"{API_BASE}{path}", json=payload, timeout=timeout)
+    return requests.post(f"{API_BASE_URL}{path}", json=payload, timeout=timeout)
 
 
 def check_health() -> dict:
@@ -210,7 +210,7 @@ def render_report(data: dict) -> None:
 
 with st.sidebar:
     st.header("⚙️ Configuration")
-    st.code(API_BASE, language=None)
+    st.code(API_BASE_URL, language=None)
 
     if st.button("🔍 Check Backend Health", use_container_width=True):
         with st.spinner("Checking…"):
