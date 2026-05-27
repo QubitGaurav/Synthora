@@ -17,23 +17,23 @@ class ReportAgent:
     ) -> str:
         source_list = [
             {
-                "title": source.get("title"),
-                "url": source.get("url"),
-                "credibility": source.get("credibility"),
-                "relevance_score": source.get("relevance_score"),
+                "title": s.get("title"),
+                "url": s.get("url"),
+                "credibility": s.get("credibility"),
+                "relevance_score": s.get("relevance_score"),
             }
-            for source in sources
+            for s in sources
         ]
         prompt = f"""
-You are a professional research report writer.
-Create a polished Markdown research report.
+You are a professional research report writer. Create a polished Markdown research report.
+Be objective. Do not invent facts. Use only the provided data.
 
 Research query: {query}
 Summary: {json.dumps(summary, indent=2)}
 Fact checks: {json.dumps(fact_checks, indent=2)}
 Sources: {json.dumps(source_list, indent=2)}
 
-Required structure:
+Required structure (use exactly these headings):
 # Research Report: {query}
 ## Executive Summary
 ## Key Findings
@@ -42,22 +42,27 @@ Required structure:
 ## Fact-Checking Results
 ## Sources and References
 
-Use citations by naming source titles and URLs. Be objective. Do not invent facts.
+Cite sources by title and URL inline. Be concise and professional.
 """
         try:
             return await self.llm.generate_content(prompt, model="pro", max_tokens=3000)
         except Exception as exc:
-            print(f"Report generation failed: {exc}")
+            print(f"[ReportAgent] Report generation failed: {exc}")
+            source_lines = "\n".join(
+                f"- [{s.get('title', 'Unknown')}]({s.get('url', '')})" for s in sources
+            )
             return f"""# Research Report: {query}
 
 ## Status
-Report generation failed with local Ollama.
+Report generation failed — check model availability.
 
 ## Error
+```
 {exc}
+```
 
-## Sources
-{chr(10).join(f'- {s.get("title", "Unknown")}: {s.get("url", "")}' for s in sources)}
+## Sources Collected
+{source_lines}
 """
 
 

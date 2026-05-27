@@ -1,14 +1,22 @@
+"""
+Synthora FastAPI application entry point.
+"""
+
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from routes.researchRoutes import router
 
-app = FastAPI(title="Local Ollama AI Research Agent", version="2.0.0")
+app = FastAPI(
+    title="Synthora AI Research Agent",
+    version="2.1.0",
+    description="Multi-agent research pipeline: search → summarize → fact-check → report",
+)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],        # tighten to your Streamlit domain in production
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -17,22 +25,15 @@ app.add_middleware(
 app.include_router(router)
 
 
-@app.get("/")
+@app.get("/", tags=["meta"])
 async def root():
     return {
-        "name": "Local Ollama AI Research Agent",
-        "status": "running",
+        "name": "Synthora AI Research Agent",
+        "version": "2.1.0",
         "docs": "/docs",
         "health": "/api/health",
     }
 
-@app.get("/api/health")
-def health():
-    return {
-        "status": "ok",
-        "backend": "running",
-        "model_provider": "ollama_cloud"
-    }
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
