@@ -1,72 +1,70 @@
 import json
-import os
+import uuid
+from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, Any, List
-from services.storageService import storage_service
+from typing import Any, Dict, List
 
-class JSONDatabase:
-    def __init__(self):
-        self.storage = storage_service
+
+class JsonDB:
+    def __init__(self, base_dir: str = "data") -> None:
+        self.base = Path(base_dir)
+        for folder in ["users", "projects", "reports", "cache"]:
+            (self.base / folder).mkdir(parents=True, exist_ok=True)
+
+    @staticmethod
+    def _now() -> str:
+        return datetime.now(timezone.utc).isoformat()
 
     async def create_project(self, user_id: str, query: str) -> str:
-        """Create a new research project"""
-        project_data = {
-            "projectId": "",  # Will be set by storage
+        project_id = f"project_{uuid.uuid4().hex[:12]}"
+        project = {
+            "_id": project_id,
             "userId": user_id,
             "query": query,
-            "createdAt": "",  # Will be set by storage
-            "status": "pending",
-            "sources": [],
-            "summary": {
-                "keyInsights": [],
-                "risks": [],
-                "opportunities": []
-            },
-            "factChecks": [],
-            "finalReport": ""
+            "status": "created",
+            "_created_at": self._now(),
+            "_updated_at": self._now(),
         }
-        return await self.storage.save_document("projects", project_data)
+        await self.update_project(project_id, project)
+        return project_id
+
+    async def update_project(self, project_id: str, updates: Dict[str, Any]) -> Dict[str, Any]:
+        path = self.base / "projects" / f"{project_id}.json"
+        data: Dict[str, Any] = {}
+        if path.exists():
+            data = json.loads(path.read_text(encoding="utf-8"))
+        data.update(updates)
+        data.setdefault("_id", project_id)
+        data["_updated_at"] = self._now()
+        path.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
+        return data
 
     async def get_project(self, project_id: str) -> Dict[str, Any]:
-        """Get project by ID"""
-        return await self.storage.get_document("projects", project_id)
+        path = self.base / "projects" / f"{project_id}.json"
+        if not path.exists():
+            raise FileNotFoundError(f"Project not found: {project_id}")
+        return json.loads(path.read_text(encoding="utf-8"))
 
-    async def update_project(self, project_id: str, updates: Dict[str, Any]):
-        """Update project data"""
-        await self.storage.update_document("projects", project_id, updates)
-
-    async def create_user(self, user_data: Dict[str, Any]) -> str:
-        """Create a new user"""
-        return await self.storage.save_document("users", user_data)
-
-    async def get_user(self, user_id: str) -> Dict[str, Any]:
-        """Get user by ID"""
-        return await self.storage.get_document("users", user_id)
+    async def list_user_projects(self, user_id: str) -> List[Dict[str, Any]]:
+        projects = []
+        for path in (self.base / "projects").glob("*.json"):
+            data = json.loads(path.read_text(encoding="utf-8"))
+            if data.get("userId") == user_id:
+                projects.append(data)
+        return sorted(projects, key=lambda item: item.get("_updated_at", ""), reverse=True)
 
     async def save_report(self, report_data: Dict[str, Any]) -> str:
-        """Save a final report"""
-        return await self.storage.save_document("reports", report_data)
+        report_id = f"report_{uuid.uuid4().hex[:12]}"
+        report_data.update({"_id": report_id, "_created_at": self._now(), "_updated_at": self._now()})
+        path = self.base / "reports" / f"{report_id}.json"
+        path.write_text(json.dumps(report_data, indent=2, ensure_ascii=False), encoding="utf-8")
+        return report_id
 
     async def get_report(self, report_id: str) -> Dict[str, Any]:
-        """Get report by ID"""
-        return await self.storage.get_document("reports", report_id)
+        path = self.base / "reports" / f"{report_id}.json"
+        if not path.exists():
+            raise FileNotFoundError(f"Report not found: {report_id}")
+        return json.loads(path.read_text(encoding="utf-8"))
 
-    async def cache_search_results(self, query: str, results: List[Dict[str, Any]]) -> str:
-        """Cache search results"""
-        cache_data = {
-            "query": query,
-            "results": results,
-            "timestamp": ""  # Will be set by storage
-        }
-        return await self.storage.save_document("cache", cache_data)
 
-    async def get_cached_results(self, query: str) -> List[Dict[str, Any]]:
-        """Get cached search results"""
-        # Simple implementation - in real app, would need better caching logic
-        cache_docs = await self.storage.list_documents("cache")
-        for doc in cache_docs:
-            if doc.get("query") == query:
-                return doc.get("results", [])
-        return []
-
-json_db = JSONDatabase()
+json_db = JsonDB()

@@ -1,107 +1,113 @@
+import json
+from typing import Any, Dict, List
+from urllib.parse import quote_plus
+
 import requests
 from bs4 import BeautifulSoup
-import json
-from typing import List, Dict, Any
-from services.openaiService import openai_service
+
+from services.ollamaService import ollama_service
+
 
 class SearchAgent:
-    def __init__(self):
-        self.openai = openai_service
+    def __init__(self) -> None:
+        self.llm = ollama_service
 
     async def search_web(self, query: str, max_results: int = 5) -> List[Dict[str, Any]]:
-        """Search the web and extract content from relevant sources"""
-        # For MVP, we'll use a simple approach with some predefined URLs
-        # In production, you'd integrate with a search API like Google Custom Search,
-        # Bing Search API, or DuckDuckGo Search API
+        """Lightweight search using DuckDuckGo HTML results plus page extraction."""
+        results = self._duckduckgo_search(query, max_results=max_results)
 
-        # For now, return some example AI-related sources
-        example_sources = [
-            {
-                "title": "Artificial Intelligence - Wikipedia",
-                "url": "https://en.wikipedia.org/wiki/Artificial_intelligence",
-                "content": "Artificial intelligence (AI) is intelligence demonstrated by machines, as opposed to natural intelligence displayed by animals including humans. AI research has been defined as the field of study of intelligent agents, which refers to any system that perceives its environment and takes actions that maximize its chance of achieving its goals.",
-                "credibility": 0.9
-            },
-            {
-                "title": "What is AI? - MIT Technology Review",
-                "url": "https://www.technologyreview.com/topic/artificial-intelligence/",
-                "content": "Artificial intelligence is a field of science concerned with building computers and machines that can reason, learn, and act in ways that would normally require human intelligence or that involve data whose scale exceeds what humans can analyze.",
-                "credibility": 0.85
-            },
-            {
-                "title": "Google AI Blog",
-                "url": "https://ai.googleblog.com/",
-                "content": "The Google AI Blog covers the latest research and developments in artificial intelligence from Google. Topics include machine learning, deep learning, natural language processing, computer vision, and more.",
-                "credibility": 0.9
-            }
-        ]
+        if not results:
+            return [
+                {
+                    "title": "No live sources found",
+                    "url": "local://fallback",
+                    "content": f"No live web results were found for: {query}",
+                    "credibility": 0.2,
+                    "relevance_score": 0.2,
+                }
+            ]
 
-        # Filter and limit results
-        results = example_sources[:max_results]
+        enriched: List[Dict[str, Any]] = []
+        for item in results:
+            extracted = await self.extract_content(item["url"])
+            item["content"] = extracted.get("text") or item.get("snippet", "")
+            item["title"] = extracted.get("title") or item.get("title", "Untitled")
+            item["credibility"] = self._estimate_credibility(item["url"])
+            enriched.append(item)
 
-        # Try to extract real content if newspaper is available
-        for source in results:
-            if "content" not in source or len(source["content"]) < 100:
-                extracted = await self.extract_content(source["url"])
-                if extracted:
-                    source["content"] = extracted.get("text", source.get("content", ""))
-                    if extracted.get("title"):
-                        source["title"] = extracted["title"]
+        return await self.rank_sources(enriched, query)
 
+    def _duckduckgo_search(self, query: str, max_results: int) -> List[Dict[str, Any]]:
+        url = f"https://duckduckgo.com/html/?q={quote_plus(query)}"
+        headers = {"User-Agent": "Mozilla/5.0"}
+        try:
+            response = requests.get(url, headers=headers, timeout=15)
+            response.raise_for_status()
+        except Exception as exc:
+            print(f"Search failed: {exc}")
+            return []
+
+        soup = BeautifulSoup(response.text, "html.parser")
+        results: List[Dict[str, Any]] = []
+        for result in soup.select(".result"):
+            link = result.select_one(".result__a")
+            snippet = result.select_one(".result__snippet")
+            if not link:
+                continue
+            href = link.get("href", "")
+            title = link.get_text(" ", strip=True)
+            if href and title:
+                results.append(
+                    {
+                        "title": title,
+                        "url": href,
+                        "snippet": snippet.get_text(" ", strip=True) if snippet else "",
+                    }
+                )
+            if len(results) >= max_results:
+                break
         return results
 
     async def extract_content(self, url: str) -> Dict[str, str]:
-        """Extract clean content from a URL"""
         try:
-            response = requests.get(url, timeout=10)
-            soup = BeautifulSoup(response.content, 'html.parser')
-
-            # Remove script and style elements
-            for script in soup(["script", "style"]):
-                script.extract()
-
-            text = soup.get_text()
-            # Clean up whitespace
-            lines = (line.strip() for line in text.splitlines())
-            chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
-            text = ' '.join(chunk for chunk in chunks if chunk)
-
-            return {
-                "title": soup.title.string if soup.title else "Unknown",
-                "text": text[:5000],  # Limit length
-                "authors": [],
-                "publish_date": None
-            }
-        except Exception as e:
-            print(f"Failed to extract content from {url}: {e}")
+            response = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=15)
+            response.raise_for_status()
+            soup = BeautifulSoup(response.content, "html.parser")
+            for tag in soup(["script", "style", "nav", "footer", "header"]):
+                tag.extract()
+            title = soup.title.get_text(" ", strip=True) if soup.title else "Untitled"
+            text = " ".join(soup.get_text(" ", strip=True).split())
+            return {"title": title, "text": text[:6000]}
+        except Exception as exc:
+            print(f"Content extraction failed for {url}: {exc}")
             return {}
 
     async def rank_sources(self, sources: List[Dict[str, Any]], query: str) -> List[Dict[str, Any]]:
-        """Rank sources based on relevance to query using the local Ollama model"""
-        if not sources:
-            return sources
-
         prompt = f"""
-        Rank the following sources based on their relevance to the query: "{query}"
+Rank these sources for relevance to the research query.
+Return only a JSON array. Keep every source object and add relevance_score from 0 to 1.
 
-        Sources:
-        {json.dumps(sources, indent=2)}
-
-        Return a JSON array of sources sorted by relevance (most relevant first).
-        Include a relevance_score (0-1) for each source.
-        """
-
+Query: {query}
+Sources: {json.dumps(sources, indent=2)[:12000]}
+"""
         try:
-            response = await self.gemini.generate_content(prompt, model="flash")
-            # Parse the JSON response
-            import json
-            ranked_sources = json.loads(response.strip())
-            return ranked_sources
-        except Exception as e:
-            print(f"Error ranking sources: {e}")
-            # Return original sources with default scores
-            for source in sources:
-                source["relevance_score"] = 0.5
-            return sources
+            response = await self.llm.generate_content(prompt, model="flash", max_tokens=2048)
+            ranked = self.llm.extract_json(response)
+            if isinstance(ranked, list):
+                return ranked
+        except Exception as exc:
+            print(f"Ranking failed, using default ordering: {exc}")
+
+        for source in sources:
+            source["relevance_score"] = source.get("relevance_score", 0.5)
+        return sources
+
+    @staticmethod
+    def _estimate_credibility(url: str) -> float:
+        trusted = [".edu", ".gov", "nature.com", "science.org", "arxiv.org", "who.int", "mit.edu"]
+        if any(domain in url.lower() for domain in trusted):
+            return 0.9
+        return 0.65
+
 
 search_agent = SearchAgent()

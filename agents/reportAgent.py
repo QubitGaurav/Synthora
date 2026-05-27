@@ -1,83 +1,64 @@
 import json
-from typing import Dict, Any, List
-from services.openaiService import openai_service
+from typing import Any, Dict, List
+
+from services.ollamaService import ollama_service
+
 
 class ReportAgent:
-    def __init__(self):
-        self.openai = openai_service
+    def __init__(self) -> None:
+        self.llm = ollama_service
 
-    async def generate_report(self, query: str, sources: List[Dict[str, Any]],
-                            summary: Dict[str, Any], fact_checks: List[Dict[str, Any]]) -> str:
-        """Generate a comprehensive research report"""
-
-        # Prepare data for the report
-        report_data = {
-            "query": query,
-            "sources": sources,
-            "summary": summary,
-            "fact_checks": fact_checks
-        }
-
+    async def generate_report(
+        self,
+        query: str,
+        sources: List[Dict[str, Any]],
+        summary: Dict[str, Any],
+        fact_checks: List[Dict[str, Any]],
+    ) -> str:
+        source_list = [
+            {
+                "title": source.get("title"),
+                "url": source.get("url"),
+                "credibility": source.get("credibility"),
+                "relevance_score": source.get("relevance_score"),
+            }
+            for source in sources
+        ]
         prompt = f"""
-        You are a professional research report writer. Create a comprehensive, well-structured research report based on the following data:
+You are a professional research report writer.
+Create a polished Markdown research report.
 
-        Research Query: {query}
+Research query: {query}
+Summary: {json.dumps(summary, indent=2)}
+Fact checks: {json.dumps(fact_checks, indent=2)}
+Sources: {json.dumps(source_list, indent=2)}
 
-        Summary Data:
-        {json.dumps(summary, indent=2)}
+Required structure:
+# Research Report: {query}
+## Executive Summary
+## Key Findings
+## Detailed Analysis
+## Risks and Opportunities
+## Fact-Checking Results
+## Sources and References
 
-        Fact Checks:
-        {json.dumps(fact_checks, indent=2)}
-
-        Sources Used:
-        {json.dumps([{"title": s.get("title"), "url": s.get("url"), "credibility": s.get("credibility")} for s in sources], indent=2)}
-
-        Generate a polished research report in Markdown format that includes:
-
-        # Research Report: [Query Title]
-
-        ## Executive Summary
-        [Brief overview of findings]
-
-        ## Key Findings
-        [Main insights and conclusions]
-
-        ## Detailed Analysis
-        [Break down of key insights, statistics, arguments]
-
-        ## Risks and Opportunities
-        [Balanced view of challenges and potential]
-
-        ## Sources and References
-        [List of sources with credibility scores]
-
-        ## Fact-Checking Results
-        [Summary of verification status]
-
-        Make the report professional, objective, and well-cited. Use clear headings and bullet points where appropriate.
-        """
-
+Use citations by naming source titles and URLs. Be objective. Do not invent facts.
+"""
         try:
-            report_markdown = await self.openai.generate_content(prompt, model="pro")
-            return report_markdown
-        except Exception as e:
-            print(f"Error generating report: {e}")
-            # Fallback basic report
+            return await self.llm.generate_content(prompt, model="pro", max_tokens=3000)
+        except Exception as exc:
+            print(f"Report generation failed: {exc}")
             return f"""# Research Report: {query}
 
-## Executive Summary
-Research conducted on the topic. Analysis in progress.
+## Status
+Report generation failed with local Ollama.
 
-## Key Findings
-- Content analysis completed
-- Multiple sources reviewed
-- Fact-checking performed
+## Error
+{exc}
 
 ## Sources
-{chr(10).join([f"- {s.get('title', 'Unknown')}: {s.get('url', '')}" for s in sources])}
-
-## Status
-Report generation encountered technical issues. Raw data available in project files.
+{chr(10).join(f'- {s.get("title", "Unknown")}: {s.get("url", "")}' for s in sources)}
 """
+
 
 report_agent = ReportAgent()

@@ -1,0 +1,88 @@
+{
+  "_id": "project_8a13b63a9a63",
+  "userId": "Vaishali Sharma",
+  "query": "How AI affect software market",
+  "status": "completed",
+  "_created_at": "2026-05-27T01:00:02.447403+00:00",
+  "_updated_at": "2026-05-27T01:00:03.883291+00:00",
+  "sources": [
+    {
+      "title": "The future of software in the age of AI - Deloitte US",
+      "url": "//duckduckgo.com/l/?uddg=https%3A%2F%2Fwww.deloitte.com%2Fus%2Fen%2FIndustries%2Ftmt%2Farticles%2Fai%2Din%2Dsoftware%2Ddevelopment.html&rut=bcd0ebb178cf8d021fbdcec4b9744a01ad6d3f0688fbdba6c459e0fa420b3e43",
+      "snippet": "AI is transforming the software industry. Discover key AI software development trends and strategies companies can embrace to reap the benefits of embedding AI into software development.",
+      "content": "AI is transforming the software industry. Discover key AI software development trends and strategies companies can embrace to reap the benefits of embedding AI into software development.",
+      "credibility": 0.65,
+      "relevance_score": 0.5
+    },
+    {
+      "title": "Impact of AI on the 2025 Software Engineering Job Market",
+      "url": "//duckduckgo.com/l/?uddg=https%3A%2F%2Fwww.sundeepteki.org%2Fadvice%2Fimpact%2Dof%2Dai%2Don%2Dthe%2D2025%2Dsoftware%2Dengineering%2Djob%2Dmarket&rut=7ffabb6af55a5c875e2bd46294d56b153b69c407b34cf63a8de9f7d4830f9876",
+      "snippet": "The widespread adoption of generative AI since late 2022 has triggered a structural, not cyclical, shift in the software engineering labor market . This is not a simple productivity boost; it is a fundamental rebalancing of value, skills, and career trajectories. The most significant, data-backed impact is a \"hollowing out\" of the entry-level pipeline. A recent Stanford study reveals a 13% ...",
+      "content": "The widespread adoption of generative AI since late 2022 has triggered a structural, not cyclical, shift in the software engineering labor market . This is not a simple productivity boost; it is a fundamental rebalancing of value, skills, and career trajectories. The most significant, data-backed impact is a \"hollowing out\" of the entry-level pipeline. A recent Stanford study reveals a 13% ...",
+      "credibility": 0.65,
+      "relevance_score": 0.5
+    },
+    {
+      "title": "How Will AI Affect the US Labor Market? - Goldman Sachs",
+      "url": "//duckduckgo.com/l/?uddg=https%3A%2F%2Fwww.goldmansachs.com%2Finsights%2Farticles%2Fhow%2Dwill%2Dai%2Daffect%2Dthe%2Dus%2Dlabor%2Dmarket&rut=bd91aa6e045474670830179ce621952ee6b656073a9edf57aef2df3ac9e925c4",
+      "snippet": "The effect of AI is already being felt in particular niches of the US economy, says Joseph Briggs, who co-leads the global economics team in Goldman Sachs Research. \"You can see AI's impact in the tech sector, where the employment share as a proportion of the whole economy has gone below the long term trend,\" he says. How will AI impact jobs?",
+      "content": "The effect of AI is already being felt in particular niches of the US economy, says Joseph Briggs, who co-leads the global economics team in Goldman Sachs Research. \"You can see AI's impact in the tech sector, where the employment share as a proportion of the whole economy has gone below the long term trend,\" he says. How will AI impact jobs?",
+      "credibility": 0.65,
+      "relevance_score": 0.5
+    },
+    {
+      "title": "Artificial Intelligence (AI) Software Market Share, Size, Trends ...",
+      "url": "//duckduckgo.com/l/?uddg=https%3A%2F%2Fwww.thebusinessresearchcompany.com%2Freport%2Fartificial%2Dintelligence%2Dai%2Dsoftware%2Dglobal%2Dmarket%2Dreport&rut=71055c504fdb7a9e9d8c73761456a3976dd7021524bbcb6cbd0252626a17dbf8",
+      "snippet": "What Is The Artificial Intelligence ( AI ) Software Market Size and Share 2026? The artificial intelligence ( AI ) software market size has grown exponentially in recent years. It will grow from $292.71 billion in 2025 to $386.08 billion in 2026 at a compound annual growth rate (CAGR) of 31.9%. The growth in the historic period can be attributed to growth in adoption of enterprise AI solutions ...",
+      "content": "What Is The Artificial Intelligence ( AI ) Software Market Size and Share 2026? The artificial intelligence ( AI ) software market size has grown exponentially in recent years. It will grow from $292.71 billion in 2025 to $386.08 billion in 2026 at a compound annual growth rate (CAGR) of 31.9%. The growth in the historic period can be attributed to growth in adoption of enterprise AI solutions ...",
+      "credibility": 0.65,
+      "relevance_score": 0.5
+    },
+    {
+      "title": "Leading AI-driven software organizations show the way | McKinsey",
+      "url": "//duckduckgo.com/l/?uddg=https%3A%2F%2Fwww.mckinsey.com%2Findustries%2Ftechnology%2Dmedia%2Dand%2Dtelecommunications%2Four%2Dinsights%2Funlocking%2Dthe%2Dvalue%2Dof%2Dai%2Din%2Dsoftware%2Ddevelopment&rut=0fab7dcca020890b55013dfbef1b31e40e2f63b73671eec6c6c3e3a8cef969b4",
+      "snippet": "This article examines two key shifts and three essential enablers that high-performing software organizations use to maximize the potential of incorporating AI into software development.",
+      "content": "This article examines two key shifts and three essential enablers that high-performing software organizations use to maximize the potential of incorporating AI into software development.",
+      "credibility": 0.65,
+      "relevance_score": 0.5
+    }
+  ],
+  "summary": {
+    "keyInsights": [
+      "Unable to generate structured summary from the local model."
+    ],
+    "statistics": [],
+    "arguments": [],
+    "risks": [
+      "'function' object has no attribute 'generate_content'"
+    ],
+    "opportunities": [
+      "Check Ollama model availability and retry."
+    ]
+  },
+  "factChecks": [
+    {
+      "claim": "Unable to generate structured summary from the local model.",
+      "status": "unverified",
+      "confidence": 0.1,
+      "supporting_sources": [],
+      "explanation": "Local model verification failed or source evidence was insufficient."
+    },
+    {
+      "claim": "'function' object has no attribute 'generate_content'",
+      "status": "unverified",
+      "confidence": 0.1,
+      "supporting_sources": [],
+      "explanation": "Local model verification failed or source evidence was insufficient."
+    },
+    {
+      "claim": "Check Ollama model availability and retry.",
+      "status": "unverified",
+      "confidence": 0.1,
+      "supporting_sources": [],
+      "explanation": "Local model verification failed or source evidence was insufficient."
+    }
+  ],
+  "finalReport": "# Research Report: How AI affect software market\n\n## Status\nReport generation failed with local Ollama.\n\n## Error\n'function' object has no attribute 'generate_content'\n\n## Sources\n- The future of software in the age of AI - Deloitte US: //duckduckgo.com/l/?uddg=https%3A%2F%2Fwww.deloitte.com%2Fus%2Fen%2FIndustries%2Ftmt%2Farticles%2Fai%2Din%2Dsoftware%2Ddevelopment.html&rut=bcd0ebb178cf8d021fbdcec4b9744a01ad6d3f0688fbdba6c459e0fa420b3e43\n- Impact of AI on the 2025 Software Engineering Job Market: //duckduckgo.com/l/?uddg=https%3A%2F%2Fwww.sundeepteki.org%2Fadvice%2Fimpact%2Dof%2Dai%2Don%2Dthe%2D2025%2Dsoftware%2Dengineering%2Djob%2Dmarket&rut=7ffabb6af55a5c875e2bd46294d56b153b69c407b34cf63a8de9f7d4830f9876\n- How Will AI Affect the US Labor Market? - Goldman Sachs: //duckduckgo.com/l/?uddg=https%3A%2F%2Fwww.goldmansachs.com%2Finsights%2Farticles%2Fhow%2Dwill%2Dai%2Daffect%2Dthe%2Dus%2Dlabor%2Dmarket&rut=bd91aa6e045474670830179ce621952ee6b656073a9edf57aef2df3ac9e925c4\n- Artificial Intelligence (AI) Software Market Share, Size, Trends ...: //duckduckgo.com/l/?uddg=https%3A%2F%2Fwww.thebusinessresearchcompany.com%2Freport%2Fartificial%2Dintelligence%2Dai%2Dsoftware%2Dglobal%2Dmarket%2Dreport&rut=71055c504fdb7a9e9d8c73761456a3976dd7021524bbcb6cbd0252626a17dbf8\n- Leading AI-driven software organizations show the way | McKinsey: //duckduckgo.com/l/?uddg=https%3A%2F%2Fwww.mckinsey.com%2Findustries%2Ftechnology%2Dmedia%2Dand%2Dtelecommunications%2Four%2Dinsights%2Funlocking%2Dthe%2Dvalue%2Dof%2Dai%2Din%2Dsoftware%2Ddevelopment&rut=0fab7dcca020890b55013dfbef1b31e40e2f63b73671eec6c6c3e3a8cef969b4\n",
+  "reportId": "report_5d1cef6f82be"
+}

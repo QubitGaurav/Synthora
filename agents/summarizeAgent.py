@@ -1,57 +1,56 @@
 import json
-from typing import List, Dict, Any
-from services.openaiService import openai_service
+from typing import Any, Dict, List
+
+from services.ollamaService import ollama_service
+
 
 class SummarizationAgent:
-    def __init__(self):
-        self.openai = openai_service
+    def __init__(self) -> None:
+        self.llm = ollama_service
 
     async def summarize_content(self, sources: List[Dict[str, Any]], query: str) -> Dict[str, Any]:
-        """Summarize the collected content into key insights, statistics, arguments, risks, and opportunities"""
-
-        # Combine all source content
-        combined_content = "\n\n".join([
-            f"Source: {source.get('title', 'Unknown')}\n{source.get('content', '')}"
+        combined_content = "\n\n".join(
+            f"Source: {source.get('title', 'Unknown')}\nURL: {source.get('url', '')}\n{source.get('content', '')[:2500]}"
             for source in sources
-        ])
+        )
 
         prompt = f"""
-        You are a research summarizer. Analyze the following content related to the query: "{query}"
+You are a strict research summarizer.
+Analyze the sources for this query: "{query}"
 
-        Content from sources:
-        {combined_content}
+Sources:
+{combined_content[:15000]}
 
-        Summarize the content into the following structured format:
-        1. Key insights (3-5 main points)
-        2. Important statistics (any numbers, trends, or data points mentioned)
-        3. Major arguments (different perspectives or viewpoints presented)
-        4. Risks (potential downsides, challenges, or concerns)
-        5. Opportunities (potential benefits, advantages, or future possibilities)
+Return only valid JSON with exactly these keys:
+- keyInsights: array of 3-5 strings
+- statistics: array of strings
+- arguments: array of strings
+- risks: array of strings
+- opportunities: array of strings
 
-        Return your response as a JSON object with these exact keys: keyInsights, statistics, arguments, risks, opportunities.
-        Each value should be an array of strings.
-        """
-
+Do not use markdown. Do not add commentary outside JSON.
+"""
         try:
-            response = await self.openai.generate_content(prompt, model="pro")
-            # Clean the response to extract JSON
-            response_text = response.strip()
-            if response_text.startswith("```json"):
-                response_text = response_text[7:]
-            if response_text.endswith("```"):
-                response_text = response_text[:-3]
-
-            summary_data = json.loads(response_text.strip())
-            return summary_data
-        except Exception as e:
-            print(f"Error in summarization: {e}")
-            # Return a basic structure
+            response = await self.llm.generate_content(prompt, model="pro", max_tokens=2048)
+            data = self.llm.extract_json(response)
+            if not isinstance(data, dict):
+                raise ValueError("Expected JSON object")
             return {
-                "keyInsights": ["Content analysis in progress"],
-                "statistics": [],
-                "arguments": ["Multiple perspectives identified"],
-                "risks": ["Analysis ongoing"],
-                "opportunities": ["Research continues"]
+                "keyInsights": data.get("keyInsights", []),
+                "statistics": data.get("statistics", []),
+                "arguments": data.get("arguments", []),
+                "risks": data.get("risks", []),
+                "opportunities": data.get("opportunities", []),
             }
+        except Exception as exc:
+            print(f"Summarization failed: {exc}")
+            return {
+                "keyInsights": ["Unable to generate structured summary from the local model."],
+                "statistics": [],
+                "arguments": [],
+                "risks": [str(exc)],
+                "opportunities": ["Check Ollama model availability and retry."],
+            }
+
 
 summarize_agent = SummarizationAgent()
